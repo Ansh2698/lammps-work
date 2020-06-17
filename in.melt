@@ -6,7 +6,10 @@ atom_style	atomic
 lattice		fcc 0.8442
 region		box block 0 10 0 10 0 10
 create_box	1 box
-create_atoms	1 box
+
+region  atombox block INF INF INF INF INF INF units box
+create_atoms	1 random 512 534654 atombox
+
 mass		1 1.0
 
 velocity	all create 3.0 87287
@@ -14,20 +17,31 @@ velocity	all create 3.0 87287
 pair_style	lj/cut 2.5
 pair_coeff	1 1 1.0 1.0 2.5
 
+minimize  1.0e-4 1.0e-6 100 1000
+
 neighbor	0.3 bin
 neigh_modify	every 20 delay 0 check no
+timestep 0.005
+variable nthermo equal 1000
+variable temp equal 0.7
+variable tdamp equal 1.0
+variable pext equal 1.0 
+variable pdamp equal 10.0
+reset_timestep 0
 
-fix 		1 all npt temp 300.0 300.0 100.0 iso 0.0 0.0 1000.0
+fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso 0.0 0.0 1000.0
+dump		id all atom 1000 out.dump.npt.lammpstrj
+thermo		${nthermo}
+thermo_style custom steps pe ke etotal press temp vol density
+restart 100000 restart1.data restart2.data
+run		  200000
+unfix   intnpt
+undump  id
 
-#dump		id all atom 50 dump.melt
+# add NVT loop here. 
 
-#dump		2 all image 25 image.*.jpg type type &
-#		axes yes 0.8 0.02 view 60 -30
-#dump_modify	2 pad 3
 
-#dump		3 all movie 25 movie.mpg type type &
-#		axes yes 0.8 0.02 view 60 -30
-#dump_modify	3 pad 3
 
-thermo		1
-run		500000
+
+
+
