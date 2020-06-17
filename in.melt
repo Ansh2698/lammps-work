@@ -7,7 +7,7 @@ lattice		fcc 0.8442
 region		box block 0 10 0 10 0 10
 create_box	1 box
 
-region  atombox block INF INF INF INF INF INF units box
+region      atombox block INF INF INF INF INF INF units box
 create_atoms	1 random 512 534654 atombox
 
 mass		1 1.0
@@ -29,16 +29,23 @@ variable pext equal 1.0
 variable pdamp equal 10.0
 reset_timestep 0
 
-fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso 0.0 0.0 1000.0
+fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
 dump		id all atom 1000 out.dump.npt.lammpstrj
 thermo		${nthermo}
-thermo_style custom steps pe ke etotal press temp vol density
+thermo_style custom step pe ke etotal press temp vol density
 restart 100000 restart1.data restart2.data
 run		  200000
 unfix   intnpt
 undump  id
 
-# add NVT loop here. 
+fix        intnvt all nvt temp ${temp} ${temp} ${tdamp}
+dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
+thermp     ${nthermo}
+thermo_style custom step pe ke etotal press temp vol density
+restart 100000 restartnpt.data restartnp2.data
+run       200000
+unfix     intnvt
+undump    idnvt
 
 
 
