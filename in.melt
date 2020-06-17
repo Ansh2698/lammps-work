@@ -1,25 +1,25 @@
 # 3d Lennard-Jones melt
 
-units		lj
-atom_style	atomic
+units		lj #reduced unit
+atom_style	atomic  
 
 lattice		fcc 0.8442
-region		box block 0 10 0 10 0 10
-create_box	1 box
+region		box block 0 10 0 10 0 10  #defining the region of the block taken
+create_box	1 box    
 
-region      atombox block INF INF INF INF INF INF units box
-create_atoms	1 random 512 534654 atombox
+region      atombox block INF INF INF INF INF INF units box  #defining the region inside the block where the atom will be generated
+create_atoms	1 random 512 534654 atombox  #atom created inside the defined region 
 
 mass		1 1.0
 
 velocity	all create 3.0 87287
 
 pair_style	lj/cut 2.5
-pair_coeff	1 1 1.0 1.0 2.5
+pair_coeff	1 1 1.0 1.0 2.5  # epsilon sigma and rcut is defined repectively
 
 minimize  1.0e-4 1.0e-6 100 1000
 
-neighbor	0.3 bin
+neighbor	0.3 bin   #skin factor is taken to 0.3 
 neigh_modify	every 20 delay 0 check no
 timestep 0.005
 variable nthermo equal 1000
@@ -27,9 +27,17 @@ variable temp equal 0.7
 variable tdamp equal 1.0
 variable pext equal 1.0 
 variable pdamp equal 10.0
+variable Nevery equal 100
+variable Nfreq equal 50000
+variable Nrepeat equal 0.5*${Nfreq}/${Nevery}
 reset_timestep 0
 
+#Using Npt to Calculate the rdf
+
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
+compute     rdfnpt all rdf 1000 1 1
+fix rdfnpt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnpt[*] file systemnpt.rdf mode vector
+compute msd all msd average yes
 dump		id all atom 1000 out.dump.npt.lammpstrj
 thermo		${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
@@ -38,7 +46,13 @@ run		  200000
 unfix   intnpt
 undump  id
 
+
+#Using Nvt to calculate the rdf
+
 fix        intnvt all nvt temp ${temp} ${temp} ${tdamp}
+compute     rdfnvt all rdf 1000 1 1
+fix rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector
+compute msd all msd average yes
 dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
 thermp     ${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
