@@ -27,20 +27,20 @@ variable temp equal 0.7
 variable tdamp equal 1.0
 variable pext equal 1.0 
 variable pdamp equal 10.0
-variable Nevery equal 100
-variable Nfreq equal 50000
-variable Nrepeat equal 0.5*${Nfreq}/${Nevery}
+variable Nevery equal 1000
+variable Nfreq equal 100
+variable Nrepeat equal 100000
 reset_timestep 0
 
 #Using Npt to Calculate the rdf
 
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
-compute     rdfnpt all rdf 1000 1 1
+compute     rdfnpt all rdf 100 1 1
 fix rdfnpt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnpt[*] file systemnpt.rdf mode vector
 compute msd all msd average yes
-dump		id all atom 1000 out.dump.npt.lammpstrj
+dump		id all atom 1000 out.dump.nvt.lammpstrj
 thermo		${nthermo}
-thermo_style custom step pe ke etotal press temp vol density
+thermo_style custom step pe ke etotal press temp vol c_msd[4]
 restart 100000 restart1.data restart2.data
 run		  200000
 unfix   intnpt
