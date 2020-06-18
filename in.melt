@@ -36,12 +36,10 @@ reset_timestep 0
 
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
 compute     rdfnpt all rdf 100 1 1
-fix rdfnpt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnpt[*] file systemnpt.rdf mode vector
-compute msd all msd average yes
-dump		id all atom 1000 out.dump.nvt.lammpstrj
+dump		id all atom 1000 out.dump.npt.lammpstrj
 thermo		${nthermo}
-thermo_style custom step pe ke etotal press temp vol c_msd[4]
-restart 100000 restart1.data restart2.data
+thermo_style custom step pe ke etotal press temp vol density
+restart 100000 restartnvt1.data restartnvt2.data
 run		  200000
 unfix   intnpt
 undump  id
@@ -55,8 +53,8 @@ fix rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt
 compute msd all msd average yes
 dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
 thermp     ${nthermo}
-thermo_style custom step pe ke etotal press temp vol density
-restart 100000 restartnpt.data restartnp2.data
+thermo_style custom step pe ke etotal press temp vol c_msd[4]
+restart 100000 restartnpt1.data restartnp2.data
 run       200000
 unfix     intnvt
 undump    idnvt
