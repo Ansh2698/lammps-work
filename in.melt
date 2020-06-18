@@ -28,8 +28,8 @@ variable tdamp equal 1.0
 variable pext equal 1.0 
 variable pdamp equal 10.0
 variable Nevery equal 1000
-variable Nfreq equal 100
-variable Nrepeat equal 100000
+variable Nfreq equal 100000
+variable Nrepeat equal 100
 reset_timestep 0
 
 #Using Npt to Calculate the rdf
@@ -51,7 +51,7 @@ compute     rdfnvt all rdf 100 1 1
 fix rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector
 compute msd all msd average yes
 dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
-thermp     ${nthermo}
+thermo    ${nthermo}
 thermo_style custom step pe ke etotal press temp vol c_msd[4]
 restart 100000 restartnpt1.data restartnp2.data
 run       200000
