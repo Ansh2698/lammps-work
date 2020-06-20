@@ -32,13 +32,9 @@ variable Nrepeat equal 100
 reset_timestep 0
 
 #Using Npt to Calculate the rdf
-label       temploop
-variable    a loop 11
-variable    temp equal 0.3+($a-1)*0.1   
-
-# 1.2 0.1   #Loop over the temprature from 0.3 to 1.2 
-# This loop command was right -do a small run to check whether it is working. But jump command is required. 
-
+label       temploop  #loop named as temploop
+variable    a loop 11   #loop parameter defined
+variable    temp equal 0.3+($a-1)*0.1   #temp value will increase at rate of 0.1 from 0.3 till 1.3
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
 dump		id all atom 1000 out.dump.npt.lammpstrj
 thermo		${nthermo}
@@ -66,4 +62,4 @@ uncompute msd
 undump    idnvt
 
 next      a
-jump      SELF temploop
+jump      SELF temploop #it will again transfer the call to label temploop line
