@@ -32,34 +32,38 @@ variable Nrepeat equal 100
 reset_timestep 0
 
 #Using Npt to Calculate the rdf
-label       loop                     
-variable    temp loop  0.3 1.2 0.1   #Loop over the temprature from 0.3 to 1.2 
+label       temploop
+variable    a loop 11
+variable    temp equal 0.3+($a-1)*0.1   
+
+# 1.2 0.1   #Loop over the temprature from 0.3 to 1.2 
+# This loop command was right -do a small run to check whether it is working. But jump command is required. 
+
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
 dump		id all atom 1000 out.dump.npt.lammpstrj
 thermo		${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
 restart 100000 restartnvt1.data restartnvt2.data
-run		  200000
+run		  100000
 unfix   intnpt
 undump  id
 
-
-#Using Nvt to calculate the rdf
-
-fix        intnvt all nvt temp ${temp} ${temp} ${tdamp}
-compute     rdfnvt all rdf 100 1 1
-fix rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector
-compute msd all msd average yes
-dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
+#Using Nvt to calculate the rdf and msd
+compute   rdfnvt all rdf 100 1 1
+fix       rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector
+compute   msd all msd average yes
+dump      idnvt all atom 1000 out.dump.nvt.lammpstrj
 thermo    ${nthermo}
 thermo_style custom step pe ke etotal press temp vol c_msd[4]
-restart 100000 restartnpt1.data restartnp2.data
-run       200000
+restart   100000 restartnpt1.data restartnp2.data
+
+fix       intnvt all nvt temp ${temp} ${temp} ${tdamp}
+run       400000
 unfix     intnvt
+unfix     rdfnvt
+uncompute rdfnvt
+uncompute msd
 undump    idnvt
 
-
-
-
-
-
+next      a
+jump      SELF temploop
