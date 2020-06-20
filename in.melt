@@ -23,7 +23,6 @@ neighbor	0.3 bin   #skin factor is taken to 0.3
 neigh_modify	every 20 delay 0 check no
 timestep 0.005
 variable nthermo equal 1000
-variable temp equal 0.7
 variable tdamp equal 1.0
 variable pext equal 1.0 
 variable pdamp equal 10.0
@@ -33,7 +32,8 @@ variable Nrepeat equal 100
 reset_timestep 0
 
 #Using Npt to Calculate the rdf
-
+label       loop                     
+variable    temp loop  0.3 1.2 0.1   #Loop over the temprature from 0.3 to 1.2 
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
 dump		id all atom 1000 out.dump.npt.lammpstrj
 thermo		${nthermo}
