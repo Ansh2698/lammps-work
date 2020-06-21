@@ -7,8 +7,7 @@ lattice		fcc 0.8442
 region		box block 0 10 0 10 0 10  #defining the region of the block taken
 create_box	1 box    
 
-region      atombox block INF INF INF INF INF INF units box  #defining the region inside the block where the atom will be generated
-create_atoms	1 random 512 534654 atombox  #atom created inside the defined region 
+create_atoms	1 lattice  
 
 mass		1 1.0
 
@@ -62,4 +61,4 @@ uncompute msd
 undump    idnvt
 
 next      a
-jump      SELF temploop #it will again transfer the call to label temploop line
+jump      in.melt temploop #it will again transfer the call to label temploop line
