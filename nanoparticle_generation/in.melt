@@ -7,8 +7,9 @@ lattice		fcc 0.8442
 region		box block 0 10 0 10 0 10  #defining the region of the block taken
 create_box	1 box    
 
-region      atombox block INF INF INF INF INF INF units box  #defining the region inside the block where the atom will be generated
-create_atoms	1 random 512 534654 atombox  #atom created inside the defined region 
+#defining the region to make nano particle
+region      liq sphere 5 5 5 5     #speherical region is generated to create nanoparticle 
+create_atoms	1 random 1 534654 liq # created a single nanoparticle inside the specified region
 
 mass		1 1.0
 
