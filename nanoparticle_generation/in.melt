@@ -1,5 +1,7 @@
 # 3d Lennard-Jones melt
 
+# variable and loop commands for the epsilon loop
+
 units		lj #reduced unit
 atom_style	atomic  
 
@@ -13,25 +15,26 @@ region		box block 0 10 0 10 0 10
 create_box	2 box   
 
 #defining the region to make nano particle
-region      liq sphere 5 5 5 5     #speherical region is generated to create nanoparticle 
+region      liq sphere 5 5 5 2     #speherical region is generated to create nanoparticle 
 create_atoms	1 random 512 534654 liq # created a single nanoparticle inside the specified region
+# you cannot create an nanoparticle like that. use lattice commnd to create nanoparticle with certain size
 
 #defining the region to fill the remaning space with other atom
-region      box sphere 5 5 5 5 side out #remaining space outside the sphere
+region      box sphere 5 5 5 2 side out #remaining space outside the sphere
 create_atoms 2 region box   #2nd type of atom created in the defined region
 
 #masses defined for both atom type
 mass		* 1.0
 
 
-velocity	all create 3.0 87287
+velocity	all create 1.0 87287
 
-pair_style	lj/cut 2.5
+pair_style	lj/cut 3.5
 
 #Seeting the pair coefficient for all types of interaction
-pair_coeff	1 1 1.0 1.0 2.5  # epsilon sigma and rcut is defined repectively
-pair_coeff	1 2 1.0 1.0 2.5
-pair_coeff	2 2 1.0 1.0 2.5
+pair_coeff	1 1 10.0 1.0 3.5  # epsilon sigma and rcut is defined repectively
+pair_coeff	1 2 ${eps} 1.0 3.5 # if both the interaction potentials are same then how they will behave differently? 
+pair_coeff	2 2 1.0 1.0 3.5 # Use epsilon(nanoparticle)=10.0 
 
 
 minimize  1.0e-4 1.0e-6 100 1000
@@ -64,7 +67,7 @@ undump  id
 #Using Nvt to calculate the rdf
 
 fix        intnvt all nvt temp ${temp} ${temp} ${tdamp}
-compute     rdfnvt all rdf 100 1 1
+compute     rdfnvt all rdf 100 1 1  # think about the changes in RDF and which interactions of greater interest add that !! 
 fix rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector
 compute msd all msd average yes
 dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
