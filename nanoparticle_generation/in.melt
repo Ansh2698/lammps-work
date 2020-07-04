@@ -3,20 +3,36 @@
 units		lj #reduced unit
 atom_style	atomic  
 
+#lattice type is chosen as fcc
 lattice		fcc 0.8442
-region		box block 0 10 0 10 0 10  #defining the region of the block taken
-create_box	1 box    
+
+#defining the region of the block taken
+region		box block 0 10 0 10 0 10  
+
+#2 types of atom are used in the simulation
+create_box	2 box   
 
 #defining the region to make nano particle
 region      liq sphere 5 5 5 5     #speherical region is generated to create nanoparticle 
-create_atoms	1 random 1 534654 liq # created a single nanoparticle inside the specified region
+create_atoms	1 random 512 534654 liq # created a single nanoparticle inside the specified region
 
-mass		1 1.0
+#defining the region to fill the remaning space with other atom
+region      box sphere 5 5 5 5 side out #remaining space outside the sphere
+create_atoms 2 region box   #2nd type of atom created in the defined region
+
+#masses defined for both atom type
+mass		* 1.0
+
 
 velocity	all create 3.0 87287
 
 pair_style	lj/cut 2.5
+
+#Seeting the pair coefficient for all types of interaction
 pair_coeff	1 1 1.0 1.0 2.5  # epsilon sigma and rcut is defined repectively
+pair_coeff	1 2 1.0 1.0 2.5
+pair_coeff	2 2 1.0 1.0 2.5
+
 
 minimize  1.0e-4 1.0e-6 100 1000
 
