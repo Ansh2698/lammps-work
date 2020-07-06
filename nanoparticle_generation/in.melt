@@ -20,21 +20,23 @@ create_atoms	1 random 512 534654 liq # created a single nanoparticle inside the 
 # you cannot create an nanoparticle like that. use lattice commnd to create nanoparticle with certain size
 
 #defining the region to fill the remaning space with other atom
-region      box sphere 5 5 5 2 side out #remaining space outside the sphere
-create_atoms 2 region box   #2nd type of atom created in the defined region
+region      liqbox sphere 5 5 5 2 side out #remaining space outside the sphere
+create_atoms 2 region liqbox   #2nd type of atom created in the defined region
 
 #masses defined for both atom type
 mass		* 1.0
 
+group   np type 1
+group   liq type 2
 
-velocity	all create 1.0 87287
+velocity	liq create 1.0 87287
 
 pair_style	lj/cut 3.5
 
 #Seeting the pair coefficient for all types of interaction
 pair_coeff	1 1 10.0 1.0 3.5  # epsilon sigma and rcut is defined repectively
 pair_coeff	1 2 ${eps} 1.0 3.5 # if both the interaction potentials are same then how they will behave differently? 
-pair_coeff	2 2 1.0 1.0 3.5 # Use epsilon(nanoparticle)=10.0 
+pair_coeff	2 2 0.8 1.0 3.5 # Use epsilon(nanoparticle)=10.0 
 
 
 minimize  1.0e-4 1.0e-6 100 1000
@@ -43,7 +45,7 @@ neighbor	0.3 bin   #skin factor is taken to 0.3
 neigh_modify	every 20 delay 0 check no
 timestep 0.005
 variable nthermo equal 1000
-variable temp equal 0.7
+variable temp equal 1.0
 variable tdamp equal 1.0
 variable pext equal 1.0 
 variable pdamp equal 10.0
@@ -66,14 +68,18 @@ undump  id
 
 #Using Nvt to calculate the rdf
 
-fix        intnvt all nvt temp ${temp} ${temp} ${tdamp}
-compute     rdfnvt all rdf 100 1 1  # think about the changes in RDF and which interactions of greater interest add that !! 
-fix rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector
-compute msd all msd average yes
-dump       idnvt all atom 1000 out.dump.nvt.lammpstrj
-thermo    ${nthermo}
+fix         intnvt all nvt temp ${temp} ${temp} ${tdamp}
+compute     rdfnvt all rdf 100 1 1 1 2 2 2 # think about the changes in RDF and which interactions of greater interest add that !! 
+fix         rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf mode vector ave window 2
+
+compute     msd all msd average yes
+dump        idnvt all atom 1000 out.dump.nvt.lammpstrj
+thermo      ${nthermo}
 thermo_style custom step pe ke etotal press temp vol c_msd[4]
-restart 100000 restartnpt1.data restartnp2.data
-run       200000
-unfix     intnvt
-undump    idnvt
+restart     100000 restartnpt1.data restartnp2.data
+run         200000
+unfix       intnvt
+undump      idnvt
+
+
+UPDATE IT !! 
