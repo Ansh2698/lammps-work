@@ -35,8 +35,9 @@ pair_style	lj/cut 3.5
 
 #Setting the loop based on the epsilon 
 label       epsloop  #loop named as epsloop
-variable    a loop 4   #loop parameter defined
-variable    eps equal 0.5+($a-1)*0.5  #epsilon value will increase at rate of 0.5 from 0.5 till 2.0
+variable    a loop 12   #loop parameter defined
+variable    eps equal 0.5+($a-1)*0.5  
+if "${eps} > 2" then "varaible eps equal 2.0+($a-3)*2.0" #epsilon value will increase at rate of 0.5 from 0.5 till 2.0
 
 
 #Seeting the pair coefficient for all types of interaction
@@ -63,7 +64,7 @@ reset_timestep 0
 #Using Npt to Calculate the rdf
 
 fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
-dump		id all atom 1000 out.dump.npt.${eps}.lammpstrj
+dump		id all atom 1000 out.dump.npt.$a.lammpstrj
 thermo		${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
 restart 100000 restartnvt1.data restartnvt2.data
@@ -76,8 +77,8 @@ undump  id
 
 fix         intnvt all nvt temp ${temp} ${temp} ${tdamp}
 compute     rdfnvt all rdf 100 1 1 1 2 2 2
-fix         rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf.${eps} mode vector ave window 2
-dump        idnvt all atom 1000 out.dump.nvt.${eps}.lammpstrj
+fix         rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file systemnvt.rdf.$a mode vector ave window 2
+dump        idnvt all atom 1000 out.dump.nvt.$a.lammpstrj
 thermo      ${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
 restart     100000 restartnpt1.data restartnp2.data
@@ -88,4 +89,3 @@ undump      idnvt
 
 next      a
 jump      in.melt epsloop
-UPDATE IT !! 
