@@ -35,9 +35,9 @@ pair_style	lj/cut 3.5
 
 #Setting the loop based on the epsilon 
 label       epsloop  #loop named as epsloop
-variable    a loop 12   #loop parameter defined
+variable    a loop 10   #loop parameter defined
 variable    eps equal 0.5+($a-1)*0.5  
-if "${eps} > 2" then "variable eps equal 2.0+($a-3)*2.0" #epsilon value will increase at rate of 0.5 from 0.5 till 2.0
+if "${eps} > 2" then "variable eps equal 2.0+($a-4)*2.0" #epsilon value will increase at rate of 0.5 from 0.5 till 2.0
 
 
 #Seeting the pair coefficient for all types of interaction
@@ -67,8 +67,8 @@ fix 		intnpt all npt temp ${temp} ${temp} ${tdamp} iso ${pext} ${pext} ${pdamp}
 dump		id all atom 1000 out.dump.npt.${eps}.lammpstrj
 thermo		${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
-restart 100000 restartnvt1.data restartnvt2.data
-run		  200000
+restart 25000 restartnpt1.data restartnpt2.data
+run		  50000
 unfix   intnpt
 undump  id
 
@@ -81,10 +81,11 @@ fix         rdfnvt all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_rdfnvt[*] file s
 dump        idnvt all atom 1000 out.dump.nvt.${eps}.lammpstrj
 thermo      ${nthermo}
 thermo_style custom step pe ke etotal press temp vol density
-restart     100000 restartnpt1.data restartnp2.data
+restart     100000 restartnvt1.data restartnvt2.data
 run         200000
 unfix       intnvt
 uncompute   rdfnvt
+unfix       rdfnvt
 undump      idnvt
 
 next      a
