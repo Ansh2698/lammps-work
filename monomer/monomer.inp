@@ -1,0 +1,14 @@
+#
+# Monomer
+#
+
+tolerance 2.0 
+filetype xyz
+output monomer.xyz
+
+structure water.xyz 
+  number 500
+  inside box 0. 0. -10. 40. 40. 0.
+end structure
+
+
